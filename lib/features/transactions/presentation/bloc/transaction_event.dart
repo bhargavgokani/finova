@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../data/models/transaction_model.dart';
+
 abstract class TransactionEvent extends Equatable {
   const TransactionEvent();
 
@@ -22,4 +24,13 @@ class SearchTransactions extends TransactionEvent {
 
   @override
   List<Object?> get props => [query];
+}
+
+class AddTransaction extends TransactionEvent {
+  final TransactionModel transaction;
+
+  const AddTransaction(this.transaction);
+
+  @override
+  List<Object?> get props => [transaction];
 }

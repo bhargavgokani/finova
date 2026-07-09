@@ -23,6 +23,12 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     );
     on<SearchTransactions>(_onSearchTransactions);
     on<_SearchDebounced>((event, emit) => emit(_loadTransactions(event.query)));
+    on<AddTransaction>(_onAddTransaction);
+  }
+
+  void _onAddTransaction(AddTransaction event, Emitter<TransactionState> emit) {
+    _transactionRepository.addTransaction(event.transaction);
+    emit(_loadTransactions(state.searchQuery));
   }
 
   // Typing dispatches SearchTransactions on every keystroke. Instead of

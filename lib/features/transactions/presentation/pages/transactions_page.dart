@@ -7,6 +7,7 @@ import '../../../dashboard/presentation/widgets/transaction_tile.dart';
 import '../bloc/transaction_bloc.dart';
 import '../bloc/transaction_event.dart';
 import '../bloc/transaction_state.dart';
+import 'add_transaction_page.dart';
 
 class TransactionsPage extends StatelessWidget {
   const TransactionsPage({super.key});
@@ -27,6 +28,10 @@ class _TransactionsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.transactionsTitle)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openAddTransactionPage(context),
+        child: const Icon(Icons.add),
+      ),
       body: BlocBuilder<TransactionBloc, TransactionState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -58,6 +63,19 @@ class _TransactionsView extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _openAddTransactionPage(BuildContext context) {
+    final transactionBloc = context.read<TransactionBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: transactionBloc,
+          child: const AddTransactionPage(),
+        ),
       ),
     );
   }
