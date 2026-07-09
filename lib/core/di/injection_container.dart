@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/transactions/data/repositories/transaction_repository.dart';
 import '../services/local_storage_service.dart';
 
@@ -25,5 +26,10 @@ Future<void> setupLocator() async {
 
   locator.registerLazySingleton<TransactionRepository>(
     () => TransactionRepository(),
+  );
+
+  // Factory: a fresh bloc each time the dashboard screen is opened.
+  locator.registerFactory<DashboardBloc>(
+    () => DashboardBloc(locator<TransactionRepository>()),
   );
 }
