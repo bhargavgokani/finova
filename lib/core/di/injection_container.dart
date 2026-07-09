@@ -4,6 +4,7 @@ import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/transactions/data/repositories/transaction_repository.dart';
+import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
 import '../services/local_storage_service.dart';
 
 final GetIt locator = GetIt.instance;
@@ -31,5 +32,10 @@ Future<void> setupLocator() async {
   // Factory: a fresh bloc each time the dashboard screen is opened.
   locator.registerFactory<DashboardBloc>(
     () => DashboardBloc(locator<TransactionRepository>()),
+  );
+
+  // Factory: a fresh bloc each time the transactions screen is opened.
+  locator.registerFactory<TransactionBloc>(
+    () => TransactionBloc(locator<TransactionRepository>()),
   );
 }
