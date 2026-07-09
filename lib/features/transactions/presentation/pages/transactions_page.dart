@@ -33,20 +33,29 @@ class _TransactionsView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<TransactionBloc>().add(const RefreshTransactions());
-            },
-            child: state.transactions.isEmpty
-                ? const _EmptyTransactions()
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: state.transactions.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
-                    itemBuilder: (context, index) =>
-                        TransactionTile(transaction: state.transactions[index]),
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: SearchBar(
+                  hintText: 'Search transactions',
+                  leading: const Icon(Icons.search),
+                  onChanged: (query) => context.read<TransactionBloc>().add(
+                    SearchTransactions(query),
                   ),
+                ),
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<TransactionBloc>().add(
+                      const RefreshTransactions(),
+                    );
+                  },
+                  child: _TransactionsList(state: state),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -54,8 +63,42 @@ class _TransactionsView extends StatelessWidget {
   }
 }
 
-class _EmptyTransactions extends StatelessWidget {
-  const _EmptyTransactions();
+class _TransactionsList extends StatelessWidget {
+  final TransactionState state;
+
+  const _TransactionsList({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    if (state.filteredTransactions.isEmpty) {
+      return state.transactions.isEmpty
+          ? const _EmptyState(
+              icon: Icons.description_outlined,
+              message: 'No transactions available',
+            )
+          : const _EmptyState(
+              icon: Icons.search_off,
+              message: 'No matching transactions',
+            );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: state.filteredTransactions.length,
+      separatorBuilder: (context, index) => const Divider(height: 1),
+      itemBuilder: (context, index) =>
+          TransactionTile(transaction: state.filteredTransactions[index]),
+    );
+  }
+}
+
+/// Shared empty-state layout, kept scrollable so pull-to-refresh still
+/// works when the list has nothing to show.
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String message;
+
+  const _EmptyState({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +108,10 @@ class _EmptyTransactions extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         const SizedBox(height: 120),
-        Icon(
-          Icons.description_outlined,
-          size: 48,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(icon, size: 48, color: colorScheme.onSurfaceVariant),
         const SizedBox(height: 12),
         Text(
-          'No transactions available',
+          message,
           textAlign: TextAlign.center,
           style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),

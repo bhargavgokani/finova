@@ -14,3 +14,12 @@ class LoadTransactions extends TransactionEvent {
 class RefreshTransactions extends TransactionEvent {
   const RefreshTransactions();
 }
+
+class SearchTransactions extends TransactionEvent {
+  final String query;
+
+  const SearchTransactions(this.query);
+
+  @override
+  List<Object?> get props => [query];
+}
