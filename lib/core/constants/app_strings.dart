@@ -5,7 +5,8 @@ class AppStrings {
   static const String appName = 'Finova';
 
   // Splash
-  static const String splashTitle = 'Splash';
+  static const String splashSubtitle = 'Personal Finance Manager';
+  static const String appVersion = 'Version 1.0.0';
 
   // Auth
   static const String loginTitle = 'Login';
