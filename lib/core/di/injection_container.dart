@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 
+import '../../features/auth/data/repositories/auth_repository.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../services/local_storage_service.dart';
 
 final GetIt locator = GetIt.instance;
@@ -11,5 +13,12 @@ final GetIt locator = GetIt.instance;
 Future<void> setupLocator() async {
   locator.registerLazySingleton<LocalStorageService>(
     () => LocalStorageService(),
+  );
+
+  locator.registerLazySingleton<AuthRepository>(() => AuthRepository());
+
+  // Factory: a fresh bloc (and fresh form state) each time a screen asks for one.
+  locator.registerFactory<AuthBloc>(
+    () => AuthBloc(locator<AuthRepository>(), locator<LocalStorageService>()),
   );
 }

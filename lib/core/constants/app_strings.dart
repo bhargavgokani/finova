@@ -9,8 +9,12 @@ class AppStrings {
   static const String appVersion = 'Version 1.0.0';
 
   // Auth
-  static const String loginTitle = 'Login';
-  static const String registerTitle = 'Register';
+  static const String welcomeBackTitle = 'Welcome Back';
+  static const String createAccountTitle = 'Create Account';
+  static const String comingSoonMessage = 'Coming Soon';
+  static const String forgotPasswordTitle = 'Forgot Password';
+  static const String forgotPasswordMessage =
+      'This feature will be implemented later.';
 
   // Main features
   static const String dashboardTitle = 'Dashboard';
