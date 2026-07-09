@@ -1,15 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../data/models/budget_model.dart';
+import '../bloc/budget_bloc.dart';
+import '../bloc/budget_event.dart';
+import '../bloc/budget_state.dart';
+import '../widgets/budget_card.dart';
+import 'add_budget_page.dart';
+import 'edit_budget_page.dart';
 
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => locator<BudgetBloc>()..add(const LoadBudgets()),
+      child: const _BudgetView(),
+    );
+  }
+}
+
+class _BudgetView extends StatelessWidget {
+  const _BudgetView();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.budgetTitle)),
-      body: const Center(child: Text(AppStrings.budgetTitle)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openAddBudgetPage(context),
+        child: const Icon(Icons.add),
+      ),
+      body: BlocBuilder<BudgetBloc, BudgetState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<BudgetBloc>().add(const RefreshBudgets());
+            },
+            child: _BudgetList(budgets: state.budgets),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openAddBudgetPage(BuildContext context) {
+    final budgetBloc = context.read<BudgetBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            BlocProvider.value(value: budgetBloc, child: const AddBudgetPage()),
+      ),
+    );
+  }
+}
+
+class _BudgetList extends StatelessWidget {
+  final List<BudgetModel> budgets;
+
+  const _BudgetList({required this.budgets});
+
+  @override
+  Widget build(BuildContext context) {
+    if (budgets.isEmpty) {
+      return const _EmptyBudgets();
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: budgets.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final budget = budgets[index];
+        final colorScheme = Theme.of(context).colorScheme;
+
+        return Dismissible(
+          key: ValueKey(budget.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            decoration: BoxDecoration(
+              color: colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(
+              Icons.delete_outline,
+              color: colorScheme.onErrorContainer,
+            ),
+          ),
+          confirmDismiss: (_) => _confirmDelete(context),
+          onDismissed: (_) =>
+              context.read<BudgetBloc>().add(DeleteBudget(budget.id)),
+          child: BudgetCard(
+            budget: budget,
+            onTap: () => _openEditBudgetPage(context, budget),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Budget'),
+        content: const Text('Are you sure you want to delete this budget?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  void _openEditBudgetPage(BuildContext context, BudgetModel budget) {
+    final budgetBloc = context.read<BudgetBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: budgetBloc,
+          child: EditBudgetPage(budget: budget),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyBudgets extends StatelessWidget {
+  const _EmptyBudgets();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        const SizedBox(height: 120),
+        Icon(
+          Icons.savings_outlined,
+          size: 48,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'No budgets available',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/utils/validators.dart';
 import '../../data/models/transaction_model.dart';
 
 const List<String> _predefinedCategories = [
@@ -170,7 +171,7 @@ class _TransactionFormState extends State<TransactionForm> {
               prefixIcon: Icon(Icons.currency_rupee),
               border: OutlineInputBorder(),
             ),
-            validator: _validateAmount,
+            validator: validateRequiredAmount,
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
@@ -258,14 +259,6 @@ class _TransactionFormState extends State<TransactionForm> {
 
   String? _validateTitle(String? value) {
     if (value == null || value.trim().isEmpty) return 'Title is required';
-    return null;
-  }
-
-  String? _validateAmount(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Amount is required';
-    final amount = double.tryParse(value);
-    if (amount == null) return 'Enter a valid amount';
-    if (amount <= 0) return 'Amount must be greater than zero';
     return null;
   }
 

@@ -19,7 +19,7 @@ class AppStrings {
   // Main features
   static const String dashboardTitle = 'Dashboard';
   static const String transactionsTitle = 'Transactions';
-  static const String budgetTitle = 'Budget';
+  static const String budgetTitle = 'Budgets';
   static const String analyticsTitle = 'Analytics';
   static const String subscriptionsTitle = 'Subscriptions';
   static const String profileTitle = 'Profile';
