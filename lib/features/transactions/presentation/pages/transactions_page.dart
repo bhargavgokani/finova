@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../dashboard/presentation/widgets/transaction_tile.dart';
+import '../../data/models/transaction_model.dart';
 import '../bloc/transaction_bloc.dart';
 import '../bloc/transaction_event.dart';
 import '../bloc/transaction_state.dart';
 import 'add_transaction_page.dart';
+import 'edit_transaction_page.dart';
 
 class TransactionsPage extends StatelessWidget {
   const TransactionsPage({super.key});
@@ -104,8 +106,71 @@ class _TransactionsList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: state.filteredTransactions.length,
       separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) =>
-          TransactionTile(transaction: state.filteredTransactions[index]),
+      itemBuilder: (context, index) {
+        final transaction = state.filteredTransactions[index];
+        final colorScheme = Theme.of(context).colorScheme;
+
+        return Dismissible(
+          key: ValueKey(transaction.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: colorScheme.errorContainer,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Icon(
+              Icons.delete_outline,
+              color: colorScheme.onErrorContainer,
+            ),
+          ),
+          confirmDismiss: (_) => _confirmDelete(context),
+          onDismissed: (_) => context.read<TransactionBloc>().add(
+            DeleteTransaction(transaction.id),
+          ),
+          child: TransactionTile(
+            transaction: transaction,
+            onTap: () => _openEditTransactionPage(context, transaction),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Transaction'),
+        content: const Text(
+          'Are you sure you want to delete this transaction?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
+  void _openEditTransactionPage(
+    BuildContext context,
+    TransactionModel transaction,
+  ) {
+    final transactionBloc = context.read<TransactionBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: transactionBloc,
+          child: EditTransactionPage(transaction: transaction),
+        ),
+      ),
     );
   }
 }

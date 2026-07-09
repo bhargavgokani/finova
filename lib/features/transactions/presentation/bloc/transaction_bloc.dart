@@ -24,10 +24,28 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<SearchTransactions>(_onSearchTransactions);
     on<_SearchDebounced>((event, emit) => emit(_loadTransactions(event.query)));
     on<AddTransaction>(_onAddTransaction);
+    on<UpdateTransaction>(_onUpdateTransaction);
+    on<DeleteTransaction>(_onDeleteTransaction);
   }
 
   void _onAddTransaction(AddTransaction event, Emitter<TransactionState> emit) {
     _transactionRepository.addTransaction(event.transaction);
+    emit(_loadTransactions(state.searchQuery));
+  }
+
+  void _onUpdateTransaction(
+    UpdateTransaction event,
+    Emitter<TransactionState> emit,
+  ) {
+    _transactionRepository.updateTransaction(event.transaction);
+    emit(_loadTransactions(state.searchQuery));
+  }
+
+  void _onDeleteTransaction(
+    DeleteTransaction event,
+    Emitter<TransactionState> emit,
+  ) {
+    _transactionRepository.deleteTransaction(event.id);
     emit(_loadTransactions(state.searchQuery));
   }
 

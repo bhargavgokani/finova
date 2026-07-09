@@ -9,8 +9,9 @@ import '../../../transactions/data/models/transaction_model.dart';
 /// lists transactions (currently just the dashboard's recent list).
 class TransactionTile extends StatelessWidget {
   final TransactionModel transaction;
+  final VoidCallback? onTap;
 
-  const TransactionTile({super.key, required this.transaction});
+  const TransactionTile({super.key, required this.transaction, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,7 @@ class TransactionTile extends StatelessWidget {
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: colorScheme.primaryContainer,
         child: Icon(
