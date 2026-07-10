@@ -37,6 +37,9 @@ class TransactionModel {
   final TransactionType transactionType;
   final PaymentMethod paymentMethod;
   final String? notes;
+  final String? receiptImagePath;
+  final List<String> tags;
+  final bool isRecurring;
 
   const TransactionModel({
     required this.id,
@@ -47,5 +50,8 @@ class TransactionModel {
     required this.transactionType,
     required this.paymentMethod,
     this.notes,
+    this.receiptImagePath,
+    this.tags = const [],
+    this.isRecurring = false,
   });
 }

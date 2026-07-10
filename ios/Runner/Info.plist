@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Finova uses the camera to attach a receipt photo to a transaction.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Finova uses your photo library to attach a receipt image to a transaction.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

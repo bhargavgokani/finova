@@ -9,6 +9,7 @@ import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/transactions/data/repositories/transaction_repository.dart';
 import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
+import '../services/draft_transaction_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/settings_service.dart';
 import '../theme/theme_controller.dart';
@@ -25,6 +26,10 @@ Future<void> setupLocator() async {
   );
 
   locator.registerLazySingleton<SettingsService>(() => SettingsService());
+
+  locator.registerLazySingleton<DraftTransactionService>(
+    () => DraftTransactionService(),
+  );
 
   // Eagerly created (not lazy) so it can be seeded with the persisted
   // theme mode before the root MaterialApp first builds.
