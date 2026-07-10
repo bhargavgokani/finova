@@ -42,6 +42,7 @@ class _BudgetFormState extends State<BudgetForm> {
 
   String? _category;
   BudgetPeriod? _period;
+  bool _carryForward = false;
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _BudgetFormState extends State<BudgetForm> {
     );
     _category = budget?.category;
     _period = budget?.period;
+    _carryForward = budget?.carryForward ?? false;
     _categoryOptions = _buildCategoryOptions(budget?.category);
   }
 
@@ -88,6 +90,7 @@ class _BudgetFormState extends State<BudgetForm> {
       category: _category!,
       amount: double.parse(_amountController.text),
       period: _period!,
+      carryForward: _carryForward,
     );
 
     widget.onSubmit(budget);
@@ -144,7 +147,17 @@ class _BudgetFormState extends State<BudgetForm> {
             onChanged: (value) => setState(() => _period = value),
             validator: (value) => value == null ? 'Period is required' : null,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Carry Forward Unused Budget'),
+            subtitle: const Text(
+              'Roll over what you don\'t spend to next period',
+            ),
+            value: _carryForward,
+            onChanged: (value) => setState(() => _carryForward = value),
+          ),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _onSubmit,
             style: ElevatedButton.styleFrom(

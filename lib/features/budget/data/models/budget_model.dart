@@ -16,11 +16,13 @@ class BudgetModel {
   final String category;
   final double amount;
   final BudgetPeriod period;
+  final bool carryForward;
 
   const BudgetModel({
     required this.id,
     required this.category,
     required this.amount,
     required this.period,
+    this.carryForward = false,
   });
 }

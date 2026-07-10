@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../dashboard/presentation/widgets/summary_card.dart';
 import '../../data/models/budget_model.dart';
 import '../bloc/budget_bloc.dart';
 import '../bloc/budget_event.dart';
@@ -44,7 +47,7 @@ class _BudgetView extends StatelessWidget {
             onRefresh: () async {
               context.read<BudgetBloc>().add(const RefreshBudgets());
             },
-            child: _BudgetList(budgets: state.budgets),
+            child: _BudgetList(budgetProgress: state.budgetProgress),
           );
         },
       ),
@@ -63,49 +66,98 @@ class _BudgetView extends StatelessWidget {
   }
 }
 
-class _BudgetList extends StatelessWidget {
-  final List<BudgetModel> budgets;
+class _BudgetSummaryRow extends StatelessWidget {
+  final List<BudgetProgress> budgetProgress;
 
-  const _BudgetList({required this.budgets});
+  const _BudgetSummaryRow({required this.budgetProgress});
 
   @override
   Widget build(BuildContext context) {
-    if (budgets.isEmpty) {
-      return const _EmptyBudgets();
-    }
+    final totalBudget = budgetProgress.fold(
+      0.0,
+      (sum, p) => sum + p.budget.amount,
+    );
+    final totalSpent = budgetProgress.fold(
+      0.0,
+      (sum, p) => sum + p.spentAmount,
+    );
+    final totalRemaining = totalBudget - totalSpent;
 
-    return ListView.separated(
+    return Row(
+      children: [
+        Expanded(
+          child: SummaryCard(
+            icon: Icons.account_balance_wallet_outlined,
+            title: 'Total Budget',
+            value: formatCurrency(totalBudget),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SummaryCard(
+            icon: Icons.arrow_upward_rounded,
+            title: 'Total Spent',
+            value: formatCurrency(totalSpent),
+            valueColor: AppColors.error,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SummaryCard(
+            icon: Icons.savings_outlined,
+            title: 'Remaining',
+            value: formatCurrency(totalRemaining),
+            valueColor: AppColors.success,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BudgetList extends StatelessWidget {
+  final List<BudgetProgress> budgetProgress;
+
+  const _BudgetList({required this.budgetProgress});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: budgets.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final budget = budgets[index];
-        final colorScheme = Theme.of(context).colorScheme;
-
-        return Dismissible(
-          key: ValueKey(budget.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(16),
+      children: [
+        _BudgetSummaryRow(budgetProgress: budgetProgress),
+        const SizedBox(height: 24),
+        if (budgetProgress.isEmpty)
+          const _EmptyBudgets()
+        else
+          for (final progress in budgetProgress) ...[
+            Dismissible(
+              key: ValueKey(progress.budget.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
+              confirmDismiss: (_) => _confirmDelete(context),
+              onDismissed: (_) => context.read<BudgetBloc>().add(
+                DeleteBudget(progress.budget.id),
+              ),
+              child: BudgetCard(
+                progress: progress,
+                onTap: () => _openEditBudgetPage(context, progress.budget),
+              ),
             ),
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Icon(
-              Icons.delete_outline,
-              color: colorScheme.onErrorContainer,
-            ),
-          ),
-          confirmDismiss: (_) => _confirmDelete(context),
-          onDismissed: (_) =>
-              context.read<BudgetBloc>().add(DeleteBudget(budget.id)),
-          child: BudgetCard(
-            budget: budget,
-            onTap: () => _openEditBudgetPage(context, budget),
-          ),
-        );
-      },
+            const SizedBox(height: 12),
+          ],
+      ],
     );
   }
 
@@ -151,22 +203,23 @@ class _EmptyBudgets extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        const SizedBox(height: 120),
-        Icon(
-          Icons.savings_outlined,
-          size: 48,
-          color: colorScheme.onSurfaceVariant,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'No budgets available',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: colorScheme.onSurfaceVariant),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Column(
+        children: [
+          Icon(
+            Icons.savings_outlined,
+            size: 48,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No budgets available',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
 }

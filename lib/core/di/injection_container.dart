@@ -64,7 +64,10 @@ Future<void> setupLocator() async {
 
   // Factory: a fresh bloc each time the budget screen is opened.
   locator.registerFactory<BudgetBloc>(
-    () => BudgetBloc(locator<BudgetRepository>()),
+    () => BudgetBloc(
+      locator<BudgetRepository>(),
+      locator<TransactionRepository>(),
+    ),
   );
 
   // Factory: a fresh bloc each time the analytics screen is opened.
@@ -78,6 +81,8 @@ Future<void> setupLocator() async {
       locator<SettingsService>(),
       locator<LocalStorageService>(),
       locator<ThemeController>(),
+      locator<TransactionRepository>(),
+      locator<BudgetRepository>(),
     ),
   );
 }

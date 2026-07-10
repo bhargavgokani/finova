@@ -24,4 +24,21 @@ class AppStrings {
   static const String subscriptionsTitle = 'Subscriptions';
   static const String profileTitle = 'Profile';
   static const String receiptScannerTitle = 'Receipt Scanner';
+
+  // Profile: About / Privacy / Edit Profile
+  static const String aboutTitle = 'About';
+  static const String privacyPolicyTitle = 'Privacy Policy';
+  static const String editProfileTitle = 'Edit Profile';
+  static const String developerName = 'Finova Team';
+  static const String aboutDescription =
+      'Finova helps you track spending, manage budgets, and understand '
+      'your financial habits at a glance.';
+  static const String privacyPolicyContent =
+      'Finova respects your privacy. All financial data you enter is '
+      'stored locally on your device and is never uploaded to any server.\n\n'
+      'We do not collect, share, or sell any personal information. '
+      'Features like biometric login and notifications are optional and '
+      'only activate when you enable them.\n\n'
+      'This is placeholder policy text for demonstration purposes and '
+      'should be replaced with a real privacy policy before release.';
 }

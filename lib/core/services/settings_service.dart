@@ -28,11 +28,16 @@ extension AppCurrencyLabel on AppCurrency {
 }
 
 /// Thin wrapper around SharedPreferences for app settings: theme mode,
-/// selected currency, and notification preference.
+/// selected currency, notification preference, profile details, and the
+/// biometric login preference.
 class SettingsService {
   static const String _themeModeKey = 'themeMode';
   static const String _currencyKey = 'selectedCurrency';
   static const String _notificationsEnabledKey = 'notificationsEnabled';
+  static const String _biometricEnabledKey = 'biometricEnabled';
+  static const String _nameKey = 'profileName';
+  static const String _emailKey = 'profileEmail';
+  static const String _phoneKey = 'profilePhone';
 
   Future<ThemeMode> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
@@ -70,5 +75,45 @@ class SettingsService {
   Future<void> setNotificationsEnabled(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_notificationsEnabledKey, value);
+  }
+
+  Future<bool> getBiometricEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_biometricEnabledKey) ?? false;
+  }
+
+  Future<void> setBiometricEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_biometricEnabledKey, value);
+  }
+
+  Future<String> getName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_nameKey) ?? '';
+  }
+
+  Future<void> setName(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_nameKey, value);
+  }
+
+  Future<String> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_emailKey) ?? '';
+  }
+
+  Future<void> setEmail(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_emailKey, value);
+  }
+
+  Future<String> getPhone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_phoneKey) ?? '';
+  }
+
+  Future<void> setPhone(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_phoneKey, value);
   }
 }

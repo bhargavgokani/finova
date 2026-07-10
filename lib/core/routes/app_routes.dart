@@ -12,4 +12,7 @@ class AppRoutes {
   static const String subscriptions = '/subscriptions';
   static const String profile = '/profile';
   static const String receiptScanner = '/receipt-scanner';
+  static const String about = '/about';
+  static const String privacy = '/privacy';
+  static const String editProfile = '/edit-profile';
 }

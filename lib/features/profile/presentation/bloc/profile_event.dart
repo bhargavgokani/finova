@@ -30,6 +30,25 @@ class ToggleNotifications extends ProfileEvent {
   const ToggleNotifications();
 }
 
+class ToggleBiometric extends ProfileEvent {
+  const ToggleBiometric();
+}
+
+class UpdateProfile extends ProfileEvent {
+  final String name;
+  final String email;
+  final String phone;
+
+  const UpdateProfile({
+    required this.name,
+    required this.email,
+    required this.phone,
+  });
+
+  @override
+  List<Object?> get props => [name, email, phone];
+}
+
 class Logout extends ProfileEvent {
   const Logout();
 }

@@ -1,13 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../transactions/data/repositories/transaction_repository.dart';
 import '../../data/repositories/budget_repository.dart';
 import 'budget_event.dart';
 import 'budget_state.dart';
 
 class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
   final BudgetRepository _budgetRepository;
+  final TransactionRepository _transactionRepository;
 
-  BudgetBloc(this._budgetRepository) : super(const BudgetState()) {
+  BudgetBloc(this._budgetRepository, this._transactionRepository)
+    : super(const BudgetState()) {
     // Currently both events reload the budget list.
     // Keeping separate events allows different behavior later.
     on<LoadBudgets>((event, emit) => emit(_loadBudgets()));
@@ -33,9 +36,15 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
   }
 
   BudgetState _loadBudgets() {
-    return BudgetState(
-      budgets: _budgetRepository.getBudgets(),
-      isLoading: false,
-    );
+    final budgetProgress = _budgetRepository.getBudgets().map((budget) {
+      return BudgetProgress(
+        budget: budget,
+        spentAmount: _transactionRepository.calculateSpentForCategory(
+          budget.category,
+        ),
+      );
+    }).toList();
+
+    return BudgetState(budgetProgress: budgetProgress, isLoading: false);
   }
 }
