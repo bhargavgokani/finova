@@ -6,9 +6,12 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/budget/data/repositories/budget_repository.dart';
 import '../../features/budget/presentation/bloc/budget_bloc.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/transactions/data/repositories/transaction_repository.dart';
 import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
 import '../services/local_storage_service.dart';
+import '../services/settings_service.dart';
+import '../theme/theme_controller.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -20,6 +23,13 @@ Future<void> setupLocator() async {
   locator.registerLazySingleton<LocalStorageService>(
     () => LocalStorageService(),
   );
+
+  locator.registerLazySingleton<SettingsService>(() => SettingsService());
+
+  // Eagerly created (not lazy) so it can be seeded with the persisted
+  // theme mode before the root MaterialApp first builds.
+  final initialThemeMode = await locator<SettingsService>().getThemeMode();
+  locator.registerSingleton<ThemeController>(ThemeController(initialThemeMode));
 
   locator.registerLazySingleton<AuthRepository>(() => AuthRepository());
 
@@ -55,5 +65,14 @@ Future<void> setupLocator() async {
   // Factory: a fresh bloc each time the analytics screen is opened.
   locator.registerFactory<AnalyticsBloc>(
     () => AnalyticsBloc(locator<TransactionRepository>()),
+  );
+
+  // Factory: a fresh bloc each time the profile screen is opened.
+  locator.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      locator<SettingsService>(),
+      locator<LocalStorageService>(),
+      locator<ThemeController>(),
+    ),
   );
 }

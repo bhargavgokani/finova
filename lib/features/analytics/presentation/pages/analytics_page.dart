@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/section_card.dart';
 import '../bloc/analytics_bloc.dart';
 import '../bloc/analytics_event.dart';
 import '../bloc/analytics_state.dart';
@@ -42,31 +43,31 @@ class _AnalyticsView extends StatelessWidget {
             children: [
               _DateRangeSelector(selected: state.selectedDateRange),
               const SizedBox(height: 24),
-              _Section(
+              SectionCard(
                 title: 'Expense Breakdown',
                 child: ExpensePieChart(
                   expenseByCategory: state.expenseByCategory,
                 ),
               ),
               const SizedBox(height: 24),
-              _Section(
+              SectionCard(
                 title: 'Income vs Expense',
                 child: IncomeExpenseLineChart(data: state.incomeVsExpense),
               ),
               const SizedBox(height: 24),
-              _Section(
+              SectionCard(
                 title: 'Monthly Comparison',
                 child: MonthlyComparisonChart(data: state.monthlyComparison),
               ),
               const SizedBox(height: 24),
-              _Section(
+              SectionCard(
                 title: 'Top Spending Categories',
                 child: _TopSpendingCategories(
                   expenseByCategory: state.expenseByCategory,
                 ),
               ),
               const SizedBox(height: 24),
-              _Section(
+              SectionCard(
                 title: 'Insights & Recommendations',
                 child: FinancialInsightsCard(
                   currentMonth: state.monthlyComparison.last,
@@ -104,36 +105,6 @@ class _DateRangeSelector extends StatelessWidget {
           context.read<AnalyticsBloc>().add(ChangeDateRange(selection.first));
         },
       ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final Widget child;
-
-  const _Section({required this.title, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(padding: const EdgeInsets.all(16), child: child),
-        ),
-      ],
     );
   }
 }
