@@ -152,10 +152,8 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             items: TransactionType.values
                 .map(
-                  (type) => DropdownMenuItem(
-                    value: type,
-                    child: Text(_transactionTypeLabel(type)),
-                  ),
+                  (type) =>
+                      DropdownMenuItem(value: type, child: Text(type.label)),
                 )
                 .toList(),
             onChanged: (value) => setState(() => _transactionType = value),
@@ -200,7 +198,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 .map(
                   (method) => DropdownMenuItem(
                     value: method,
-                    child: Text(_paymentMethodLabel(method)),
+                    child: Text(method.label),
                   ),
                 )
                 .toList(),
@@ -260,27 +258,5 @@ class _TransactionFormState extends State<TransactionForm> {
   String? _validateTitle(String? value) {
     if (value == null || value.trim().isEmpty) return 'Title is required';
     return null;
-  }
-
-  String _transactionTypeLabel(TransactionType type) {
-    switch (type) {
-      case TransactionType.income:
-        return 'Income';
-      case TransactionType.expense:
-        return 'Expense';
-    }
-  }
-
-  String _paymentMethodLabel(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Cash';
-      case PaymentMethod.card:
-        return 'Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.bankTransfer:
-        return 'Bank Transfer';
-    }
   }
 }

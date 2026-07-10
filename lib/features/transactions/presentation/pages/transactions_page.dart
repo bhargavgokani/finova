@@ -8,6 +8,7 @@ import '../../data/models/transaction_model.dart';
 import '../bloc/transaction_bloc.dart';
 import '../bloc/transaction_event.dart';
 import '../bloc/transaction_state.dart';
+import '../widgets/transaction_filter_sheet.dart';
 import 'add_transaction_page.dart';
 import 'edit_transaction_page.dart';
 
@@ -29,7 +30,15 @@ class _TransactionsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.transactionsTitle)),
+      appBar: AppBar(
+        title: const Text(AppStrings.transactionsTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () => _openFilterSheet(context),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openAddTransactionPage(context),
         child: const Icon(Icons.add),
@@ -81,6 +90,29 @@ class _TransactionsView extends StatelessWidget {
       ),
     );
   }
+
+  void _openFilterSheet(BuildContext context) {
+    final bloc = context.read<TransactionBloc>();
+    final state = bloc.state;
+    final availableCategories =
+        state.transactions.map((t) => t.category).toSet().toList()..sort();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => TransactionFilterSheet(
+        filters: state.filters,
+        sortOption: state.sortOption,
+        availableCategories: availableCategories,
+        onApplyFilters: (filters) => bloc.add(ApplyFilters(filters)),
+        onChangeSortOption: (sortOption) =>
+            bloc.add(ChangeSortOption(sortOption)),
+      ),
+    );
+  }
 }
 
 class _TransactionsList extends StatelessWidget {
@@ -104,10 +136,24 @@ class _TransactionsList extends StatelessWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: state.filteredTransactions.length,
+      itemCount: state.visibleTransactions.length + (state.hasMore ? 1 : 0),
       separatorBuilder: (context, index) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        final transaction = state.filteredTransactions[index];
+        if (index == state.visibleTransactions.length) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: OutlinedButton(
+                onPressed: () => context.read<TransactionBloc>().add(
+                  const LoadMoreTransactions(),
+                ),
+                child: const Text('Load More'),
+              ),
+            ),
+          );
+        }
+
+        final transaction = state.visibleTransactions[index];
         final colorScheme = Theme.of(context).colorScheme;
 
         return Dismissible(

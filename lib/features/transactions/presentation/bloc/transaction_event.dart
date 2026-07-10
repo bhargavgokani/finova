@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../data/models/transaction_model.dart';
+import 'transaction_state.dart';
 
 abstract class TransactionEvent extends Equatable {
   const TransactionEvent();
@@ -51,4 +52,26 @@ class DeleteTransaction extends TransactionEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class ApplyFilters extends TransactionEvent {
+  final TransactionFilters filters;
+
+  const ApplyFilters(this.filters);
+
+  @override
+  List<Object?> get props => [filters];
+}
+
+class ChangeSortOption extends TransactionEvent {
+  final TransactionSortOption sortOption;
+
+  const ChangeSortOption(this.sortOption);
+
+  @override
+  List<Object?> get props => [sortOption];
+}
+
+class LoadMoreTransactions extends TransactionEvent {
+  const LoadMoreTransactions();
 }

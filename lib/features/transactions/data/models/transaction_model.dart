@@ -1,6 +1,32 @@
 enum TransactionType { income, expense }
 
+extension TransactionTypeLabel on TransactionType {
+  String get label {
+    switch (this) {
+      case TransactionType.income:
+        return 'Income';
+      case TransactionType.expense:
+        return 'Expense';
+    }
+  }
+}
+
 enum PaymentMethod { cash, card, upi, bankTransfer }
+
+extension PaymentMethodLabel on PaymentMethod {
+  String get label {
+    switch (this) {
+      case PaymentMethod.cash:
+        return 'Cash';
+      case PaymentMethod.card:
+        return 'Card';
+      case PaymentMethod.upi:
+        return 'UPI';
+      case PaymentMethod.bankTransfer:
+        return 'Bank Transfer';
+    }
+  }
+}
 
 class TransactionModel {
   final String id;
