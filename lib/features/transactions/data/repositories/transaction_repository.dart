@@ -99,11 +99,23 @@ class TransactionRepository {
   Map<String, double> calculateExpenseByCategory({required int monthsBack}) {
     final now = DateTime.now();
     final earliestMonth = DateTime(now.year, now.month - (monthsBack - 1));
+    return _expenseByCategory(
+      (date) => !date.isBefore(earliestMonth) && !date.isAfter(now),
+    );
+  }
 
+  // Expense total per category for a single calendar month.
+  Map<String, double> calculateExpenseByCategoryForMonth(DateTime month) {
+    return _expenseByCategory(
+      (date) => date.year == month.year && date.month == month.month,
+    );
+  }
+
+  Map<String, double> _expenseByCategory(bool Function(DateTime date) inRange) {
     final result = <String, double>{};
     for (final t in _transactions) {
       if (t.transactionType != TransactionType.expense) continue;
-      if (t.date.isBefore(earliestMonth) || t.date.isAfter(now)) continue;
+      if (!inRange(t.date)) continue;
       result.update(
         t.category,
         (value) => value + t.amount,

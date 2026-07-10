@@ -6,18 +6,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/chart_titles.dart';
 import '../../../transactions/data/repositories/transaction_repository.dart';
 
-/// Simple line chart comparing income vs expense across the selected
-/// months. Income and expense use the same green/red convention as the
-/// rest of the app - no external legend.
-class IncomeExpenseLineChart extends StatelessWidget {
+/// Simple vertical bar chart showing monthly expense for the previous 6
+/// months (oldest to newest, ending at the current month).
+class MonthlyComparisonChart extends StatelessWidget {
   final List<MonthlyTotal> data;
 
-  const IncomeExpenseLineChart({super.key, required this.data});
+  const MonthlyComparisonChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     if (data.isEmpty) {
       return Center(
@@ -30,23 +29,20 @@ class IncomeExpenseLineChart extends StatelessWidget {
       );
     }
 
-    final highest = data
-        .map(
-          (point) =>
-              point.income > point.expense ? point.income : point.expense,
-        )
+    final highestExpense = data
+        .map((point) => point.expense)
         .reduce((a, b) => a > b ? a : b);
-    final chartMax = highest <= 0 ? 100.0 : highest * 1.2;
+    final chartMax = highestExpense <= 0 ? 100.0 : highestExpense * 1.2;
 
     return SizedBox(
       height: 200,
-      child: LineChart(
-        LineChartData(
-          minY: 0,
+      child: BarChart(
+        BarChartData(
           maxY: chartMax,
+          alignment: BarChartAlignment.spaceAround,
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
-          lineTouchData: const LineTouchData(enabled: false),
+          barTouchData: BarTouchData(enabled: false),
           titlesData: simpleBottomAxisTitles((index) {
             if (index < 0 || index >= data.length) {
               return const SizedBox.shrink();
@@ -59,31 +55,21 @@ class IncomeExpenseLineChart extends StatelessWidget {
               ),
             );
           }),
-          lineBarsData: [
-            _lineFor(
-              data.map((point) => point.income).toList(),
-              AppColors.success,
-            ),
-            _lineFor(
-              data.map((point) => point.expense).toList(),
-              AppColors.error,
-            ),
-          ],
+          barGroups: List.generate(data.length, (index) {
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: data[index].expense,
+                  color: AppColors.error,
+                  width: 20,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ],
+            );
+          }),
         ),
       ),
-    );
-  }
-
-  LineChartBarData _lineFor(List<double> values, Color color) {
-    return LineChartBarData(
-      spots: List.generate(
-        values.length,
-        (index) => FlSpot(index.toDouble(), values[index]),
-      ),
-      color: color,
-      barWidth: 3,
-      dotData: const FlDotData(show: true),
-      belowBarData: BarAreaData(show: false),
     );
   }
 }

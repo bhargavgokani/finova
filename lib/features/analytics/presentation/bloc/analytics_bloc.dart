@@ -15,6 +15,9 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
   }
 
   AnalyticsState _loadAnalytics(AnalyticsDateRange dateRange) {
+    final now = DateTime.now();
+    final previousMonth = DateTime(now.year, now.month - 1);
+
     return AnalyticsState(
       selectedDateRange: dateRange,
       expenseByCategory: _transactionRepository.calculateExpenseByCategory(
@@ -23,6 +26,13 @@ class AnalyticsBloc extends Bloc<AnalyticsEvent, AnalyticsState> {
       incomeVsExpense: _transactionRepository.calculateIncomeVsExpense(
         monthsBack: dateRange.monthsBack,
       ),
+      monthlyComparison: _transactionRepository.calculateIncomeVsExpense(
+        monthsBack: 6,
+      ),
+      currentMonthExpenseByCategory: _transactionRepository
+          .calculateExpenseByCategory(monthsBack: 1),
+      previousMonthExpenseByCategory: _transactionRepository
+          .calculateExpenseByCategoryForMonth(previousMonth),
       isLoading: false,
     );
   }
