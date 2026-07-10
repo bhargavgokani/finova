@@ -19,8 +19,6 @@ class BudgetOverviewCard extends StatelessWidget {
         : colorScheme.primary;
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

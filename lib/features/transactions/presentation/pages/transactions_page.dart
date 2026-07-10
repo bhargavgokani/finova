@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../dashboard/presentation/widgets/transaction_tile.dart';
 import '../../data/models/transaction_model.dart';
 import '../bloc/transaction_bloc.dart';
@@ -123,15 +124,33 @@ class _TransactionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.filteredTransactions.isEmpty) {
-      return state.transactions.isEmpty
-          ? const _EmptyState(
-              icon: Icons.description_outlined,
-              message: 'No transactions available',
+      final empty = state.transactions.isEmpty
+          ? EmptyState(
+              icon: Icons.receipt_long_outlined,
+              title: 'No transactions yet',
+              message:
+                  'Start tracking your finances by adding your first '
+                  'transaction.',
+              actionLabel: 'Add Transaction',
+              onAction: () => _openAddTransactionPage(context),
             )
-          : const _EmptyState(
+          : const EmptyState(
               icon: Icons.search_off,
-              message: 'No matching transactions',
+              title: 'No matching transactions',
+              message: 'Try adjusting your search or filters.',
             );
+
+      return LayoutBuilder(
+        builder: (context, constraints) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: constraints.maxHeight,
+              child: Center(child: empty),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.separated(
@@ -219,32 +238,17 @@ class _TransactionsList extends StatelessWidget {
       ),
     );
   }
-}
 
-/// Shared empty-state layout, kept scrollable so pull-to-refresh still
-/// works when the list has nothing to show.
-class _EmptyState extends StatelessWidget {
-  final IconData icon;
-  final String message;
-
-  const _EmptyState({required this.icon, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        const SizedBox(height: 120),
-        Icon(icon, size: 48, color: colorScheme.onSurfaceVariant),
-        const SizedBox(height: 12),
-        Text(
-          message,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: colorScheme.onSurfaceVariant),
+  void _openAddTransactionPage(BuildContext context) {
+    final transactionBloc = context.read<TransactionBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: transactionBloc,
+          child: const AddTransactionPage(),
         ),
-      ],
+      ),
     );
   }
 }

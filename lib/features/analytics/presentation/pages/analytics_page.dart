@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../bloc/analytics_bloc.dart';
 import '../bloc/analytics_event.dart';
@@ -36,6 +37,20 @@ class _AnalyticsView extends StatelessWidget {
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          final hasAnyData = state.monthlyComparison.any(
+            (month) => month.income > 0 || month.expense > 0,
+          );
+
+          if (!hasAnyData) {
+            return const Center(
+              child: EmptyState(
+                icon: Icons.insights_outlined,
+                title: 'No analytics available yet',
+                message: 'Add transactions to generate insights.',
+              ),
+            );
           }
 
           return ListView(

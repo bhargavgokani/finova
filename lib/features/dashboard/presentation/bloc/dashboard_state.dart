@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../subscriptions/data/models/subscription_model.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 
 /// A single budget's spend-vs-limit numbers, computed for the dashboard's
@@ -35,6 +36,8 @@ class DashboardState extends Equatable {
   final List<TransactionModel> recentTransactions;
   final List<BudgetOverviewItem> budgetOverview;
   final List<double> weeklySpending;
+  final double monthlySubscriptionCost;
+  final List<SubscriptionModel> upcomingRenewals;
   final bool isLoading;
 
   const DashboardState({
@@ -45,6 +48,8 @@ class DashboardState extends Equatable {
     this.recentTransactions = const [],
     this.budgetOverview = const [],
     this.weeklySpending = const [0, 0, 0, 0],
+    this.monthlySubscriptionCost = 0,
+    this.upcomingRenewals = const [],
     this.isLoading = true,
   });
 
@@ -56,6 +61,8 @@ class DashboardState extends Equatable {
     List<TransactionModel>? recentTransactions,
     List<BudgetOverviewItem>? budgetOverview,
     List<double>? weeklySpending,
+    double? monthlySubscriptionCost,
+    List<SubscriptionModel>? upcomingRenewals,
     bool? isLoading,
   }) {
     return DashboardState(
@@ -66,6 +73,9 @@ class DashboardState extends Equatable {
       recentTransactions: recentTransactions ?? this.recentTransactions,
       budgetOverview: budgetOverview ?? this.budgetOverview,
       weeklySpending: weeklySpending ?? this.weeklySpending,
+      monthlySubscriptionCost:
+          monthlySubscriptionCost ?? this.monthlySubscriptionCost,
+      upcomingRenewals: upcomingRenewals ?? this.upcomingRenewals,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -79,6 +89,8 @@ class DashboardState extends Equatable {
     recentTransactions,
     budgetOverview,
     weeklySpending,
+    monthlySubscriptionCost,
+    upcomingRenewals,
     isLoading,
   ];
 }

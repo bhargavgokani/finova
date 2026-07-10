@@ -5,6 +5,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../dashboard/presentation/widgets/summary_card.dart';
 import '../../data/models/budget_model.dart';
 import '../bloc/budget_bloc.dart';
@@ -122,41 +123,62 @@ class _BudgetList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (budgetProgress.isEmpty) {
+      return LayoutBuilder(
+        builder: (context, constraints) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: constraints.maxHeight,
+              child: Center(
+                child: EmptyState(
+                  icon: Icons.savings_outlined,
+                  title: 'No budgets created',
+                  message:
+                      'Set a budget for a category to track your spending '
+                      'against a limit.',
+                  actionLabel: 'Add Budget',
+                  onAction: () => _openAddBudgetPage(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _BudgetSummaryRow(budgetProgress: budgetProgress),
         const SizedBox(height: 24),
-        if (budgetProgress.isEmpty)
-          const _EmptyBudgets()
-        else
-          for (final progress in budgetProgress) ...[
-            Dismissible(
-              key: ValueKey(progress.budget.id),
-              direction: DismissDirection.endToStart,
-              background: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Icon(
-                  Icons.delete_outline,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
-                ),
+        for (final progress in budgetProgress) ...[
+          Dismissible(
+            key: ValueKey(progress.budget.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(16),
               ),
-              confirmDismiss: (_) => _confirmDelete(context),
-              onDismissed: (_) => context.read<BudgetBloc>().add(
-                DeleteBudget(progress.budget.id),
-              ),
-              child: BudgetCard(
-                progress: progress,
-                onTap: () => _openEditBudgetPage(context, progress.budget),
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Icon(
+                Icons.delete_outline,
+                color: Theme.of(context).colorScheme.onErrorContainer,
               ),
             ),
-            const SizedBox(height: 12),
-          ],
+            confirmDismiss: (_) => _confirmDelete(context),
+            onDismissed: (_) => context.read<BudgetBloc>().add(
+              DeleteBudget(progress.budget.id),
+            ),
+            child: BudgetCard(
+              progress: progress,
+              onTap: () => _openEditBudgetPage(context, progress.budget),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
       ],
     );
   }
@@ -194,31 +216,14 @@ class _BudgetList extends StatelessWidget {
       ),
     );
   }
-}
 
-class _EmptyBudgets extends StatelessWidget {
-  const _EmptyBudgets();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(
-            Icons.savings_outlined,
-            size: 48,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'No budgets available',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: colorScheme.onSurfaceVariant),
-          ),
-        ],
+  void _openAddBudgetPage(BuildContext context) {
+    final budgetBloc = context.read<BudgetBloc>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            BlocProvider.value(value: budgetBloc, child: const AddBudgetPage()),
       ),
     );
   }

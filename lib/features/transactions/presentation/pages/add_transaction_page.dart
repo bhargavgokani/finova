@@ -11,9 +11,13 @@ import '../widgets/transaction_form.dart';
 /// Adds a transaction using the TransactionBloc shared with TransactionsPage,
 /// so the list refreshes automatically once this screen is popped.
 ///
-/// Automatically restores a previously saved draft, if there is one.
+/// Automatically restores a previously saved draft, if there is one - unless
+/// [prefill] is given (e.g. from ReceiptScannerPage), which takes priority
+/// and skips the draft restore entirely.
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  final TransactionModel? prefill;
+
+  const AddTransactionPage({super.key, this.prefill});
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -25,7 +29,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
-    _draftFuture = locator<DraftTransactionService>().getDraft();
+    _draftFuture = widget.prefill != null
+        ? Future.value(widget.prefill)
+        : locator<DraftTransactionService>().getDraft();
   }
 
   @override

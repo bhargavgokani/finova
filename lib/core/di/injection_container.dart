@@ -7,6 +7,8 @@ import '../../features/budget/data/repositories/budget_repository.dart';
 import '../../features/budget/presentation/bloc/budget_bloc.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/subscriptions/data/repositories/subscription_repository.dart';
+import '../../features/subscriptions/presentation/bloc/subscription_bloc.dart';
 import '../../features/transactions/data/repositories/transaction_repository.dart';
 import '../../features/transactions/presentation/bloc/transaction_bloc.dart';
 import '../services/draft_transaction_service.dart';
@@ -49,11 +51,16 @@ Future<void> setupLocator() async {
 
   locator.registerLazySingleton<BudgetRepository>(() => BudgetRepository());
 
+  locator.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionRepository(),
+  );
+
   // Factory: a fresh bloc each time the dashboard screen is opened.
   locator.registerFactory<DashboardBloc>(
     () => DashboardBloc(
       locator<TransactionRepository>(),
       locator<BudgetRepository>(),
+      locator<SubscriptionRepository>(),
     ),
   );
 
@@ -73,6 +80,11 @@ Future<void> setupLocator() async {
   // Factory: a fresh bloc each time the analytics screen is opened.
   locator.registerFactory<AnalyticsBloc>(
     () => AnalyticsBloc(locator<TransactionRepository>()),
+  );
+
+  // Factory: a fresh bloc each time the subscriptions screen is opened.
+  locator.registerFactory<SubscriptionBloc>(
+    () => SubscriptionBloc(locator<SubscriptionRepository>()),
   );
 
   // Factory: a fresh bloc each time the profile screen is opened.

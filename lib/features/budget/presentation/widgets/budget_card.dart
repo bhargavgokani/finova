@@ -23,8 +23,6 @@ class BudgetCard extends StatelessWidget {
     final statusLabel = _statusLabel(progress.percentageUsed);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),

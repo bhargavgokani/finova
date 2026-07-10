@@ -9,18 +9,6 @@ import '../../../../core/services/draft_transaction_service.dart';
 import '../../../../core/utils/validators.dart';
 import '../../data/models/transaction_model.dart';
 
-const List<String> _predefinedCategories = [
-  'Salary',
-  'Freelancing',
-  'Food',
-  'Shopping',
-  'Bills',
-  'Transport',
-  'Entertainment',
-  'Healthcare',
-  'Other',
-];
-
 const List<String> _predefinedTags = [
   'Food',
   'Business',
@@ -113,10 +101,10 @@ class _TransactionFormState extends State<TransactionForm> {
   // crashing.
   List<String> _buildCategoryOptions(String? currentCategory) {
     if (currentCategory == null ||
-        _predefinedCategories.contains(currentCategory)) {
-      return _predefinedCategories;
+        predefinedCategories.contains(currentCategory)) {
+      return predefinedCategories;
     }
-    return [..._predefinedCategories, currentCategory];
+    return [...predefinedCategories, currentCategory];
   }
 
   String _formatAmount(double amount) {

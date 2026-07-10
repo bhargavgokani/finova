@@ -23,32 +23,7 @@ class BudgetRepository {
     _budgets.removeWhere((b) => b.id == id);
   }
 
-  static List<BudgetModel> _buildMockBudgets() {
-    return const [
-      BudgetModel(
-        id: 'bg1',
-        category: 'Food',
-        amount: 8000,
-        period: BudgetPeriod.monthly,
-      ),
-      BudgetModel(
-        id: 'bg2',
-        category: 'Transport',
-        amount: 3000,
-        period: BudgetPeriod.monthly,
-      ),
-      BudgetModel(
-        id: 'bg3',
-        category: 'Shopping',
-        amount: 5000,
-        period: BudgetPeriod.monthly,
-      ),
-      BudgetModel(
-        id: 'bg4',
-        category: 'Bills',
-        amount: 4000,
-        period: BudgetPeriod.monthly,
-      ),
-    ];
-  }
+  // No seeded data - the user creates their own budgets. Must be growable
+  // (not `const []`), since addBudget() mutates this list directly.
+  static List<BudgetModel> _buildMockBudgets() => [];
 }

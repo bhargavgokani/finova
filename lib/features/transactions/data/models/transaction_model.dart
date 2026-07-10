@@ -1,3 +1,17 @@
+/// Predefined transaction categories, shared by TransactionForm's
+/// category dropdown and ReceiptScannerPage's simulated OCR result.
+const List<String> predefinedCategories = [
+  'Salary',
+  'Freelancing',
+  'Food',
+  'Shopping',
+  'Bills',
+  'Transport',
+  'Entertainment',
+  'Healthcare',
+  'Other',
+];
+
 enum TransactionType { income, expense }
 
 extension TransactionTypeLabel on TransactionType {
