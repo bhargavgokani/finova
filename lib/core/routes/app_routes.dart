@@ -11,4 +11,5 @@ class AppRoutes {
   static const String analytics = '/analytics';
   static const String subscriptions = '/subscriptions';
   static const String profile = '/profile';
+  static const String receiptScanner = '/receipt-scanner';
 }

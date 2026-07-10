@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/greeting_helper.dart';
+import '../../../transactions/presentation/bloc/transaction_bloc.dart';
+import '../../../transactions/presentation/bloc/transaction_event.dart';
+import '../../../transactions/presentation/pages/add_transaction_page.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
+import '../widgets/budget_overview_card.dart';
+import '../widgets/monthly_spending_chart.dart';
+import '../widgets/quick_action_card.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaction_tile.dart';
 
@@ -46,6 +54,12 @@ class _DashboardView extends StatelessWidget {
                   const _Greeting(),
                   const SizedBox(height: 24),
                   _SummaryGrid(state: state),
+                  const SizedBox(height: 24),
+                  const _QuickActions(),
+                  const SizedBox(height: 24),
+                  _MonthlySpendingSection(state: state),
+                  const SizedBox(height: 24),
+                  _BudgetOverviewSection(state: state),
                   const SizedBox(height: 24),
                   _RecentTransactions(state: state),
                 ],
@@ -122,6 +136,125 @@ class _SummaryGrid extends StatelessWidget {
           title: 'Savings Rate',
           value: '${state.savingsRate.toStringAsFixed(1)}%',
         ),
+      ],
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Actions',
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: QuickActionCard(
+                icon: Icons.add_circle_outline,
+                label: 'Add Transaction',
+                onTap: () => _openAddTransactionPage(context),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: QuickActionCard(
+                icon: Icons.bar_chart_outlined,
+                label: 'View Reports',
+                onTap: () => context.push(AppRoutes.analytics),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: QuickActionCard(
+                icon: Icons.document_scanner_outlined,
+                label: 'Scan Receipt',
+                onTap: () => context.push(AppRoutes.receiptScanner),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _openAddTransactionPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) =>
+              locator<TransactionBloc>()..add(const LoadTransactions()),
+          child: const AddTransactionPage(),
+        ),
+      ),
+    );
+  }
+}
+
+class _MonthlySpendingSection extends StatelessWidget {
+  final DashboardState state;
+
+  const _MonthlySpendingSection({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Monthly Spending',
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        MonthlySpendingChart(weeklySpending: state.weeklySpending),
+      ],
+    );
+  }
+}
+
+class _BudgetOverviewSection extends StatelessWidget {
+  final DashboardState state;
+
+  const _BudgetOverviewSection({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Budget Overview',
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        if (state.budgetOverview.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: Text('No budgets available')),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.budgetOverview.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) =>
+                BudgetOverviewCard(item: state.budgetOverview[index]),
+          ),
       ],
     );
   }

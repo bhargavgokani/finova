@@ -23,4 +23,5 @@ class AppStrings {
   static const String analyticsTitle = 'Analytics';
   static const String subscriptionsTitle = 'Subscriptions';
   static const String profileTitle = 'Profile';
+  static const String receiptScannerTitle = 'Receipt Scanner';
 }

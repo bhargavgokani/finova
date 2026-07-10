@@ -1,5 +1,19 @@
 import '../models/transaction_model.dart';
 
+/// One month's income and expense totals, returned by
+/// [TransactionRepository.calculateIncomeVsExpense].
+class MonthlyTotal {
+  final DateTime month;
+  final double income;
+  final double expense;
+
+  const MonthlyTotal({
+    required this.month,
+    required this.income,
+    required this.expense,
+  });
+}
+
 /// In-memory transaction data source, shared by Dashboard, Transactions,
 /// Budget and Analytics.
 ///
@@ -42,16 +56,75 @@ class TransactionRepository {
 
   double calculateMonthlyExpense() => _monthlyTotal(TransactionType.expense);
 
-  double _monthlyTotal(TransactionType type) {
+  double calculateSpentForCategory(String category) {
+    return _monthlyTotal(TransactionType.expense, category: category);
+  }
+
+  // Buckets this month's expenses into 4 weeks by day-of-month, so the last
+  // few days of longer months just fold into week 4 instead of a week 5.
+  List<double> calculateWeeklySpending() {
     final now = DateTime.now();
+    final weeklyTotals = List<double>.filled(4, 0);
+
+    for (final t in _transactions) {
+      if (t.transactionType != TransactionType.expense) continue;
+      if (t.date.year != now.year || t.date.month != now.month) continue;
+
+      final weekIndex = ((t.date.day - 1) ~/ 7).clamp(0, 3);
+      weeklyTotals[weekIndex] += t.amount;
+    }
+
+    return weeklyTotals;
+  }
+
+  double _monthlyTotal(
+    TransactionType type, {
+    String? category,
+    DateTime? month,
+  }) {
+    final target = month ?? DateTime.now();
     return _transactions
         .where(
           (t) =>
               t.transactionType == type &&
-              t.date.year == now.year &&
-              t.date.month == now.month,
+              (category == null || t.category == category) &&
+              t.date.year == target.year &&
+              t.date.month == target.month,
         )
         .fold(0.0, (sum, t) => sum + t.amount);
+  }
+
+  // Expense total per category, over the last [monthsBack] months
+  // (including the current one).
+  Map<String, double> calculateExpenseByCategory({required int monthsBack}) {
+    final now = DateTime.now();
+    final earliestMonth = DateTime(now.year, now.month - (monthsBack - 1));
+
+    final result = <String, double>{};
+    for (final t in _transactions) {
+      if (t.transactionType != TransactionType.expense) continue;
+      if (t.date.isBefore(earliestMonth) || t.date.isAfter(now)) continue;
+      result.update(
+        t.category,
+        (value) => value + t.amount,
+        ifAbsent: () => t.amount,
+      );
+    }
+    return result;
+  }
+
+  // One entry per month for the last [monthsBack] months (including the
+  // current one), oldest first.
+  List<MonthlyTotal> calculateIncomeVsExpense({required int monthsBack}) {
+    final now = DateTime.now();
+    return List.generate(monthsBack, (index) {
+      final month = DateTime(now.year, now.month - (monthsBack - 1 - index));
+      return MonthlyTotal(
+        month: month,
+        income: _monthlyTotal(TransactionType.income, month: month),
+        expense: _monthlyTotal(TransactionType.expense, month: month),
+      );
+    });
   }
 
   static List<TransactionModel> _buildMockTransactions() {

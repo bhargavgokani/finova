@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 
+import '../../features/analytics/presentation/bloc/analytics_bloc.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/budget/data/repositories/budget_repository.dart';
@@ -31,9 +32,14 @@ Future<void> setupLocator() async {
     () => TransactionRepository(),
   );
 
+  locator.registerLazySingleton<BudgetRepository>(() => BudgetRepository());
+
   // Factory: a fresh bloc each time the dashboard screen is opened.
   locator.registerFactory<DashboardBloc>(
-    () => DashboardBloc(locator<TransactionRepository>()),
+    () => DashboardBloc(
+      locator<TransactionRepository>(),
+      locator<BudgetRepository>(),
+    ),
   );
 
   // Factory: a fresh bloc each time the transactions screen is opened.
@@ -41,10 +47,13 @@ Future<void> setupLocator() async {
     () => TransactionBloc(locator<TransactionRepository>()),
   );
 
-  locator.registerLazySingleton<BudgetRepository>(() => BudgetRepository());
-
   // Factory: a fresh bloc each time the budget screen is opened.
   locator.registerFactory<BudgetBloc>(
     () => BudgetBloc(locator<BudgetRepository>()),
+  );
+
+  // Factory: a fresh bloc each time the analytics screen is opened.
+  locator.registerFactory<AnalyticsBloc>(
+    () => AnalyticsBloc(locator<TransactionRepository>()),
   );
 }

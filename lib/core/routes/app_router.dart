@@ -6,6 +6,7 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/budget/presentation/pages/budget_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/receipt_scanner/presentation/pages/receipt_scanner_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/subscriptions/presentation/pages/subscriptions_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
@@ -53,6 +54,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.profile,
         builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.receiptScanner,
+        builder: (context, state) => const ReceiptScannerPage(),
       ),
     ],
   );
